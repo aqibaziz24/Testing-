@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RippleChat — Local Prototype</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ================= AUTHENTICATION SCREEN ================= -->
+  <section id="auth-screen" class="auth-screen" aria-labelledby="auth-heading">
+    <div class="auth-card">
+      <div class="brand-header">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="32" height="32" fill="none">
+            <rect width="32" height="32" rx="9" fill="currentColor" />
+            <path
+              d="M9 14.5C9 11.462 11.91 9 15.5 9C19.09 9 22 11.462 22 14.5C22 17.538 19.09 20 15.5 20C14.44 20 13.44 19.785 12.56 19.403L9.5 21L10.35 17.85C9.5 16.92 9 15.76 9 14.5Z"
+              fill="#ffffff"
+            />
+            <circle cx="13" cy="14.5" r="1.15" fill="currentColor" />
+            <circle cx="16" cy="14.5" r="1.15" fill="currentColor" />
+            <circle cx="19" cy="14.5" r="1.15" fill="currentColor" />
+          </svg>
+        </div>
+        <div>
+          <h1 id="auth-heading" class="brand-title">RippleChat</h1>
+          <p class="brand-subtitle">Frontend-only group chat prototype</p>
+        </div>
+      </div>
+
+      <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
+        <button
+          id="tab-login"
+          type="button"
+          role="tab"
+          aria-selected="true"
+          aria-controls="login-form"
+          class="auth-tab is-active"
+        >
+          Log In
+        </button>
+        <button
+          id="tab-signup"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="signup-form"
+          class="auth-tab"
+        >
+          Sign Up
+        </button>
+      </div>
+
+      <div id="auth-notice" class="status-banner" role="status" aria-live="polite" hidden></div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form" novalidate>
+        <div class="field">
+          <label for="login-email">Email address</label>
+          <input
+            id="login-email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            placeholder="alex@example.com"
+            required
+          />
+          <p id="login-email-error" class="field-error" aria-live="polite"></p>
+        </div>
+
+        <div class="field">
+          <label for="login-password">Password</label>
+          <input
+            id="login-password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Minimum 6 characters"
+            required
+          />
+          <p id="login-password-error" class="field-error" aria-live="polite"></p>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">Log In to Demo</button>
+        <button id="fill-demo-btn" type="button" class="btn btn-ghost btn-full">
+          Fill Demo Credentials
+        </button>
+
+        <p class="auth-switch-copy">
+          New here?
+          <button id="switch-to-signup" type="button" class="link-btn">Create a demo account</button>
+        </p>
+      </form>
+
+      <!-- Sign Up Form -->
+      <form id="signup-form" class="auth-form" novalidate hidden>
+        <div class="field">
+          <label for="signup-name">Full name</label>
+          <input
+            id="signup-name"
+            name="name"
+            type="text"
+            autocomplete="name"
+            placeholder="Jordan Rivera"
+            required
+          />
+          <p id="signup-name-error" class="field-error" aria-live="polite"></p>
+        </div>
+
+        <div class="field">
+          <label for="signup-email">Email address</label>
+          <input
+            id="signup-email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            placeholder="jordan@example.com"
+            required
+          />
+          <p id="signup-email-error" class="field-error" aria-live="polite"></p>
+        </div>
+
+        <div class="field">
+          <label for="signup-password">Password</label>
+          <input
+            id="signup-password"
+            name="password"
+            type="password"
+            autocomplete="new-password"
+            placeholder="At least 6 characters"
+            required
+          />
+          <p id="signup-password-error" class="field-error" aria-live="polite"></p>
+        </div>
+
+        <div class="field">
+          <label for="signup-confirm">Confirm password</label>
+          <input
+            id="signup-confirm"
+            name="confirm"
+            type="password"
+            autocomplete="new-password"
+            placeholder="Repeat your password"
+            required
+          />
+          <p id="signup-confirm-error" class="field-error" aria-live="polite"></p>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">Create Demo Account</button>
+
+        <p class="auth-switch-copy">
+          Already have an account?
+          <button id="switch-to-login" type="button" class="link-btn">Log in instead</button>
+        </p>
+      </form>
+
+      <p class="demo-disclaimer">
+        Local demo only — no data is sent to a server or saved permanently.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================= LOADING SCREEN ================= -->
+  <section
+    id="loading-screen"
+    class="loading-screen"
+    aria-labelledby="loading-title"
+    aria-live="polite"
+    hidden
+  >
+    <div class="loading-card">
+      <div class="progress-ring-wrap">
+        <svg class="progress-ring" viewBox="0 0 120 120" width="136" height="136" aria-hidden="true">
+          <defs>
+            <linearGradient id="progress-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#6366f1" />
+              <stop offset="100%" stop-color="#0ea5e9" />
+            </linearGradient>
+          </defs>
+          <circle class="progress-ring-track" cx="60" cy="60" r="52" />
+          <circle
+            id="progress-ring-fill"
+            class="progress-ring-fill"
+            cx="60"
+            cy="60"
+            r="52"
+          />
+        </svg>
+        <div id="loading-percent" class="loading-percent">0%</div>
+      </div>
+
+      <h2 id="loading-title" class="loading-title">Setting up your workspace</h2>
+      <p id="loading-status" class="loading-status">Initializing local session…</p>
+      <p class="loading-subnote">Simulated prototype loading sequence</p>
+    </div>
+  </section>
+
+  <!-- ================= MAIN APPLICATION SHELL ================= -->
+  <div id="app-shell" class="app-shell" hidden>
+    <header class="topbar">
+      <div class="topbar-left">
+        <button
+          id="menu-toggle-btn"
+          type="button"
+          class="icon-btn"
+          aria-label="Open navigation menu"
+          aria-expanded="false"
+          aria-controls="side-drawer"
+        >
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+
+        <div class="topbar-brand">
+          <span class="topbar-logo" aria-hidden="true">
+            <svg viewBox="0 0 32 32" width="24" height="24" fill="none">
+              <rect width="32" height="32" rx="8" fill="currentColor" />
+              <path
+                d="M9 14.5C9 11.462 11.91 9 15.5 9C19.09 9 22 11.462 22 14.5C22 17.538 19.09 20 15.5 20C14.44 20 13.44 19.785 12.56 19.403L9.5 21L10.35 17.85C9.5 16.92 9 15.76 9 14.5Z"
+                fill="#ffffff"
+              />
+            </svg>
+          </span>
+          <span class="topbar-app-name">RippleChat</span>
+          <span class="topbar-divider" aria-hidden="true">/</span>
+          <h1 id="topbar-section-title" class="topbar-section">Groups</h1>
+        </div>
+      </div>
+
+      <button id="topbar-profile-btn" type="button" class="user-pill" aria-label="Open profile">
+        <span id="topbar-avatar" class="avatar avatar-sm">A</span>
+        <span class="user-pill-info">
+          <span id="topbar-user-name" class="user-pill-name">Alex Morgan</span>
+          <span id="topbar-user-status" class="user-pill-status">Online</span>
+        </span>
+      </button>
+    </header>
+
+    <!-- Slide-out Navigation Drawer -->
+    <div id="drawer-backdrop" class="drawer-backdrop" hidden></div>
+    <aside
+      id="side-drawer"
+      class="side-drawer"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Main navigation"
+      hidden
+    >
+      <div class="drawer-header">
+        <span class="drawer-brand">RippleChat</span>
+        <button id="drawer-close-btn" type="button" class="icon-btn" aria-label="Close navigation menu">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="drawer-user-card">
+        <span id="drawer-avatar" class="avatar avatar-md">A</span>
+        <div class="drawer-user-meta">
+          <div id="drawer-user-name" class="drawer-user-name">Alex Morgan</div>
+          <div id="drawer-user-email" class="drawer-user-email">alex@example.com</div>
+        </div>
+      </div>
+
+      <nav class="drawer-nav" aria-label="Primary sections">
+        <button type="button" class="drawer-nav-item is-active" data-nav="groups">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </span>
+          <span>Groups</span>
+          <span id="badge-groups" class="nav-badge">5</span>
+        </button>
+
+        <button type="button" class="drawer-nav-item" data-nav="inbox">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+              <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+            </svg>
+          </span>
+          <span>Inbox</span>
+          <span id="badge-inbox" class="nav-badge">2</span>
+        </button>
+
+        <button type="button" class="drawer-nav-item" data-nav="profile">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </span>
+          <span>Profile</span>
+        </button>
+
+        <button type="button" class="drawer-nav-item" data-nav="settings">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </span>
+          <span>Settings</span>
+        </button>
+      </nav>
+
+      <div class="drawer-footer">
+        <button id="logout-btn" type="button" class="drawer-nav-item drawer-logout">
+          <span class="nav-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </span>
+          <span>Log out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="app-main">
+      <!-- GROUPS & INBOX WORKSPACE -->
+      <section id="view-chat" class="chat-workspace" aria-label="Conversations">
+        <!-- Left Sidebar: Group / Inbox List -->
+        <div id="thread-list-panel" class="thread-panel">
+          <div class="thread-panel-header">
+            <div class="thread-panel-title-row">
+              <h2 id="thread-list-heading" class="thread-panel-title">Groups</h2>
+              <span id="thread-count-label" class="thread-count-pill">5 groups</span>
+            </div>
+
+            <div class="search-box">
+              <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                id="thread-search-input"
+                type="search"
+                placeholder="Search groups..."
+                aria-label="Search conversations"
+              />
+            </div>
+
+            <div id="inbox-filter-bar" class="filter-bar" hidden>
+              <button type="button" class="filter-chip is-active" data-inbox-filter="all">All</button>
+              <button type="button" class="filter-chip" data-inbox-filter="unread">Unread</button>
+            </div>
+          </div>
+
+          <ul id="thread-list" class="thread-list" role="listbox" aria-label="Conversation list"></ul>
+
+          <div id="thread-list-empty" class="empty-state" hidden>
+            <div class="empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </div>
+            <p id="thread-empty-title" class="empty-title">No matching groups</p>
+            <p id="thread-empty-desc" class="empty-desc">Try a different search term or reset your filter.</p>
+            <button id="reset-thread-filter-btn" type="button" class="btn btn-secondary btn-sm">
+              Clear filter
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Pane: Active Conversation -->
+        <div id="conversation-panel" class="conversation-panel">
+          <div id="chat-header" class="chat-header">
+            <div class="chat-header-left">
+              <button
+                id="mobile-back-btn"
+                type="button"
+                class="icon-btn mobile-only"
+                aria-label="Back to list"
+              >
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+              <span id="chat-avatar" class="avatar avatar-md">P</span>
+              <div>
+                <h2 id="chat-title" class="chat-title">Product Design</h2>
+                <p id="chat-subtitle" class="chat-subtitle">12 members • UI critiques & patterns</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="message-list" class="message-list" role="log" aria-live="polite" aria-label="Messages"></div>
+
+          <div id="chat-empty-state" class="empty-state chat-empty" hidden>
+            <div class="empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+            </div>
+            <p class="empty-title">No messages yet</p>
+            <p class="empty-desc">Be the first to say hello in this conversation.</p>
+          </div>
+
+          <form id="message-form" class="composer" novalidate>
+            <label for="message-input" class="sr-only">Write a message</label>
+            <textarea
+              id="message-input"
+              rows="1"
+              placeholder="Write a message..."
+              maxlength="1000"
+            ></textarea>
+            <button id="send-btn" type="submit" class="btn btn-primary send-btn" aria-label="Send message">
+              <span>Send</span>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+              </svg>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- PROFILE PANEL -->
+      <section id="view-profile" class="panel-view" aria-labelledby="profile-heading" hidden>
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <div>
+              <h2 id="profile-heading" class="panel-title">Your Profile</h2>
+              <p class="panel-subtitle">Changes apply immediately across this local demo session.</p>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm back-to-groups-btn">Back to Groups</button>
+          </div>
+
+          <div class="profile-summary">
+            <span id="profile-avatar-lg" class="avatar avatar-lg">A</span>
+            <div>
+              <div id="profile-preview-name" class="profile-preview-name">Alex Morgan</div>
+              <div id="profile-preview-email" class="profile-preview-email">alex@example.com</div>
+            </div>
+          </div>
+
+          <form id="profile-form" class="stacked-form" novalidate>
+            <div class="field">
+              <label for="profile-name-input">Display name</label>
+              <input id="profile-name-input" type="text" required />
+              <p id="profile-name-error" class="field-error" aria-live="polite"></p>
+            </div>
+
+            <div class="field">
+              <label for="profile-status-select">Availability status</label>
+              <select id="profile-status-select">
+                <option value="Online">Online</option>
+                <option value="Focused">Focused</option>
+                <option value="Away">Away</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="profile-bio-input">Short bio</label>
+              <textarea id="profile-bio-input" rows="3" maxlength="160" placeholder="Tell your groups what you're working on..."></textarea>
+            </div>
+
+            <div class="panel-actions">
+              <button type="submit" class="btn btn-primary">Save Profile</button>
+              <span id="profile-saved-msg" class="inline-feedback" role="status" aria-live="polite"></span>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- SETTINGS PANEL -->
+      <section id="view-settings" class="panel-view" aria-labelledby="settings-heading" hidden>
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <div>
+              <h2 id="settings-heading" class="panel-title">Workspace Settings</h2>
+              <p class="panel-subtitle">Customize how RippleChat behaves during your local preview.</p>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm back-to-groups-btn">Back to Groups</button>
+          </div>
+
+          <div class="settings-list">
+            <label class="setting-row">
+              <div>
+                <div class="setting-title">Press Enter to send</div>
+                <div class="setting-desc">When enabled, Enter sends your message and Shift+Enter adds a new line.</div>
+              </div>
+              <input id="setting-enter-send" type="checkbox" class="toggle-input" checked />
+            </label>
+
+            <label class="setting-row">
+              <div>
+                <div class="setting-title">Compact message spacing</div>
+                <div class="setting-desc">Fit more messages on screen by tightening bubble padding.</div>
+              </div>
+              <input id="setting-compact-mode" type="checkbox" class="toggle-input" />
+            </label>
+
+            <label class="setting-row">
+              <div>
+                <div class="setting-title">Show message timestamps</div>
+                <div class="setting-desc">Display sent times next to every message bubble.</div>
+              </div>
+              <input id="setting-show-timestamps" type="checkbox" class="toggle-input" checked />
+            </label>
+          </div>
+
+          <div class="settings-danger-box">
+            <div>
+              <div class="setting-title">Reset mock conversations</div>
+              <div class="setting-desc">Restore the original sample messages and unread counts in memory.</div>
+            </div>
+            <button id="reset-demo-data-btn" type="button" class="btn btn-secondary btn-sm">Reset Demo Data</button>
+          </div>
+          <p id="settings-feedback" class="inline-feedback" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
